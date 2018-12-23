@@ -30,40 +30,38 @@ def avgMileage(data):
     for key in data: milesDriven.append(data[key]['mileage']), gallonsUsed.append(data[key]['fuel'])
     for j in xrange(len(milesDriven)):
         avg_mileage.append(milesDriven[j]/gallonsUsed[j])
-
     return avg_mileage, mean(avg_mileage)
 
 averageMilagePerTank, averageMileage = avgMileage(data)
 
 print 'Total average fuel consumption: {0}\n'.format(averageMileage)
-#print len(milesDriven), len(gallonsUsed)
-
-#for x in milesDriven:
-#    print ''
-
 
 # Line fitting-ish
+#   This generates a line of the average gallons per mile.
 from numpy import linspace
 x = linspace(0,1.2*max(milesDriven))
-def linear(x, m): return x*(m)
+def linear(x, m): return x*(1/m)
 
 # Plotting
+#
+figure('Fuelometer')
 rc('font', family='sans')
 rc('xtick', labelsize='small')
 rc('ytick', labelsize='small')
 
-plot(x, linear(x,averageMileage), linestyle=':', color='Grey', label='MPG')
-#scatter(milesDriven, gallonsUsed[0:len(milesDriven)], marker='^', color='red', label='MPG/tank')
-for x,y,z in zip( gallonsUsed[0:len(milesDriven)], milesDriven, dates[0:len(milesDriven)] ):
+plot(x, linear(x, averageMileage), linestyle=':', color='Grey', label='GPM')
+
+for x,y,z in zip( milesDriven, gallonsUsed[0:len(milesDriven)], dates[0:len(milesDriven)] ):
+    # NB: This plots gallons per mile!
     scatter(x, y, marker='.', color='red')
     annotate( xy=[ x+0.15 ,y ], s=z )
 
-title('Miles Per Gallon')
-ylim(0,1.1*max(milesDriven))
-xlim(0,16) # It's a 15.8 gallon tank so a fill up will not be anymore than 15.
+title('Miles Per Gallon: {:4.2f}'.format(averageMileage))
+xlim(150,1.1*max(milesDriven))
+ylim(0,16) # It's a 15.8 gallon tank so a fill up will not be anymore than 15.
 xlabel("Distance Driven (Miles)")
 ylabel("Fuel Consumed (US Gallons)")
 #xscale('log')
 legend(loc='upper left')
-savefig("output.png")
+savefig("output.png")#,bbox_inches='tight')
 show()
