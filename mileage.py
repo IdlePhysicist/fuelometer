@@ -1,4 +1,4 @@
-#!/usr/bin/env python2 
+#!/usr/bin/env python2
 #
 #	mileage.py
 #	IdlePhysicist, 2018
@@ -19,28 +19,18 @@ except:
 
 # Creating a data dictionary
 data = dict()
-for row in cur:
-    #data[str(row['id'])] = row['id'],row['date'],row['mileage'],row['fuel'],row['price']
-    #data[row['id']] = { 'date': row['date'],row['mileage'],row['fuel'],row['price'] }
-    data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'], 'price': row['price'] }})
-
-#print data
+for row in cur: data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'], 'price': row['price'] }})
 
 dates = [ data[key]['date'] for key in data ]
 
 def avgMileage(data):
     from numpy import mean
     global gallonsUsed, milesDriven
-    oddometerReading, gallonsUsed = [], []
-    for key in data: oddometerReading.append(data[key]['mileage']), gallonsUsed.append(data[key]['fuel'])
-    #for key in data: gallonsUsed.append(data[key]['fuel'])
-    if len(oddometerReading) is len(gallonsUsed):
-        milesDriven, avg_mileage = [], []
-        for i in xrange(len(oddometerReading)-1):
-            milesDriven.append(oddometerReading[i+1]-oddometerReading[i])
-        for j in xrange(len(milesDriven)):
-            avg_mileage.append(milesDriven[j]/gallonsUsed[j])
-    
+    milesDriven, avg_mileage, gallonsUsed = [], [], []
+    for key in data: milesDriven.append(data[key]['mileage']), gallonsUsed.append(data[key]['fuel'])
+    for j in xrange(len(milesDriven)):
+        avg_mileage.append(milesDriven[j]/gallonsUsed[j])
+
     return avg_mileage, mean(avg_mileage)
 
 averageMilagePerTank, averageMileage = avgMileage(data)
@@ -48,8 +38,8 @@ averageMilagePerTank, averageMileage = avgMileage(data)
 print 'Total average fuel consumption: {0}\n'.format(averageMileage)
 #print len(milesDriven), len(gallonsUsed)
 
-for x in milesDriven:
-    print ''
+#for x in milesDriven:
+#    print ''
 
 
 # Line fitting-ish
