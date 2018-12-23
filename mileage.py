@@ -1,3 +1,4 @@
+#!/usr/bin/env python2 
 #
 #	mileage.py
 #	IdlePhysicist, 2018
@@ -5,7 +6,6 @@
 
 import sqlite3 as lite
 from matplotlib.pyplot import *
-
 
 # Connecting to the SQLite db
 try:
@@ -25,6 +25,8 @@ for row in cur:
     data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'], 'price': row['price'] }})
 
 #print data
+
+dates = [ data[key]['date'] for key in data ]
 
 def avgMileage(data):
     from numpy import mean
@@ -46,14 +48,14 @@ averageMilagePerTank, averageMileage = avgMileage(data)
 print 'Total average fuel consumption: {0}\n'.format(averageMileage)
 #print len(milesDriven), len(gallonsUsed)
 
+for x in milesDriven:
+    print ''
+
+
 # Line fitting-ish
 from numpy import linspace
 x = linspace(0,1.2*max(milesDriven))
-def linear(x, m):
-    #for i in xrange(len(x)):
-    #    x[i] = m*x[i]
-    
-    return x*(1/m)
+def linear(x, m): return x*(m)
 
 # Plotting
 rc('font', family='sans')
@@ -61,13 +63,17 @@ rc('xtick', labelsize='small')
 rc('ytick', labelsize='small')
 
 plot(x, linear(x,averageMileage), linestyle=':', color='Grey', label='MPG')
-scatter(milesDriven, gallonsUsed[0:len(milesDriven)], marker='^', color='red', label='MPG/tank')
+#scatter(milesDriven, gallonsUsed[0:len(milesDriven)], marker='^', color='red', label='MPG/tank')
+for x,y,z in zip( gallonsUsed[0:len(milesDriven)], milesDriven, dates[0:len(milesDriven)] ):
+    scatter(x, y, marker='.', color='red')
+    annotate( xy=[ x+0.15 ,y ], s=z )
 
 title('Miles Per Gallon')
-xlim(0,1.2*max(milesDriven))
-ylim(0,16) # It's a 15.8 gallon tank so a fill up will not be anymore than 15.
+ylim(0,1.1*max(milesDriven))
+xlim(0,16) # It's a 15.8 gallon tank so a fill up will not be anymore than 15.
 xlabel("Distance Driven (Miles)")
 ylabel("Fuel Consumed (US Gallons)")
+#xscale('log')
 legend(loc='upper left')
 savefig("output.png")
 show()
