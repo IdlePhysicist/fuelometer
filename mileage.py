@@ -7,19 +7,22 @@
 import sqlite3 as lite
 from matplotlib.pyplot import *
 
-# Connecting to the SQLite db
-try:
-    conn = lite.connect('mileage.db')
-    conn.row_factory = lite.Row
-    cur   = conn.cursor()
-    query = """SELECT * FROM audi"""
-    cur.execute(query)
-except:
-    print "Error connecting to database"
+def db_connection():
+    # Connecting to the SQLite db
+    try:
+        conn = lite.connect('mileage.db')
+        conn.row_factory = lite.Row
+        cur   = conn.cursor()
+        query = """SELECT * FROM audi"""
+        cur.execute(query)
+    except:
+        print "Error connecting to database"
 
-# Creating a data dictionary
-data = dict()
-for row in cur: data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'], 'price': row['price'] }})
+    # Creating a data dictionary
+    data = dict()
+    for row in cur: data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'], 'price': row['price'] }})
+    return data
+
 
 dates = [ data[key]['date'] for key in data ]
 
