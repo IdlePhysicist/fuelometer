@@ -71,3 +71,5 @@ class App:
         show()
 
 App().__init__()
+
+# FIXME This script runs twice! WTF right? Why? 
