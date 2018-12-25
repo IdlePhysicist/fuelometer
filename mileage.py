@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #
-#	mileage.py
-#	IdlePhysicist, 2018
+#   mileage.py
+#   IdlePhysicist, 2018
 #
 
 import sqlite3 as lite
@@ -73,3 +73,4 @@ class App:
 App().__init__()
 
 # FIXME This script runs twice! WTF right? Why? 
+
