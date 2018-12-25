@@ -7,8 +7,11 @@
 import sqlite3 as lite
 from matplotlib.pyplot import *
 from numpy import linspace, mean
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget
+from mainWindow import Ui_Fuelometer
 
-class App:
+class Mileage:
     def db_connection(self):
         # Connecting to the SQLite db
         try:
@@ -22,7 +25,7 @@ class App:
 
         # Creating a data dictionary
         data = dict()
-        for row in cur: data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'], 'price': row['price'] }})
+        for row in cur: data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'],'price': row['price'] }})
         return data
 
     def avgMileage(self):
@@ -39,7 +42,8 @@ class App:
         self.dates = [ self.data[key]['date'] for key in self.data ]
         self.averageMilagePerTank, self.averageMileage = self.avgMileage()
         self.x = linspace(0, 1.2*max(self.milesDriven))
-        self.plotting()
+        #self.pushButton_2.pressed.connect(lambda: self.operation(operator.add))
+        #self.plotting()
 
     # Line fitting-ish
     #   This generates a line of the average gallons per mile.
@@ -70,7 +74,32 @@ class App:
         savefig("output.png")#,bbox_inches='tight')
         show()
 
-App().__init__()
+class Window(QWidget, Ui_Fuelometer):
+    def __init__(self):
+        self.setupUi(self)
+        self.pushButton_2.pressed.connect(lambda: self.plotButton())
+        self.show()
 
-# FIXME This script runs twice! WTF right? Why? 
+    def plotButton(self):
+        Mileage().__init__()
 
+
+
+
+#App().__init__()
+
+#if __name__ == '__main__':
+#    app = QApplication(sys.argv)
+#    ex = Example()
+#    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Fuelometer = QtWidgets.QMainWindow()
+    ui = Ui_Fuelometer()
+    ui.setupUi(Fuelometer)
+    Fuelometer.show()
+    sys.exit(app.exec_())
+
+# FIXME This script runs twice! WTF right? Why?

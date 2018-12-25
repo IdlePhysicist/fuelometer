@@ -1,2 +1,4 @@
 *.png
 *.swp
+*.pyc
+window.ui
