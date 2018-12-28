@@ -1,4 +1,5 @@
-*.png
+output.png
 *.swp
 *.pyc
 window.ui
+.DS_Store

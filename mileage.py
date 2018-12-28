@@ -7,11 +7,21 @@
 import sqlite3 as lite
 from matplotlib.pyplot import *
 from numpy import linspace, mean
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget
+#from PyQt5 import QtCore, QtGui, QtWidgets
+#from PyQt5.QtWidgets import QWidget
+
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+
 from mainWindow import Ui_Fuelometer
 
-class Mileage:
+class WorkerSignals(QObject):
+    mpgEmit = pyqtSignal(float)
+
+class MileageWorker(QRunnable):
+    #signals = WorkerSignals()
+
     def db_connection(self):
         # Connecting to the SQLite db
         try:
@@ -28,22 +38,27 @@ class Mileage:
         for row in cur: data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'],'price': row['price'] }})
         return data
 
+    #@pyqtSlot()
     def avgMileage(self):
         global gallonsUsed, milesDriven
         self.milesDriven, avg_mileage, self.gallonsUsed = [], [], []
         for key in self.data: self.milesDriven.append( self.data[key]['mileage'] ), self.gallonsUsed.append( self.data[key]['fuel'] )
         for j in xrange(len(self.milesDriven)):
             avg_mileage.append(self.milesDriven[j]/self.gallonsUsed[j])
-        print 'Total average fuel consumption: {0}\n'.format( mean(avg_mileage) )
+        #print 'Total average fuel consumption: {0}\n'.format( mean(avg_mileage) )
         return avg_mileage, mean(avg_mileage)
 
     def __init__(self):
+        super(MileageWorker, self).__init__()
         self.data = self.db_connection()
         self.dates = [ self.data[key]['date'] for key in self.data ]
         self.averageMilagePerTank, self.averageMileage = self.avgMileage()
         self.x = linspace(0, 1.2*max(self.milesDriven))
-        #self.pushButton_2.pressed.connect(lambda: self.operation(operator.add))
+        #print self.averageMileage
+        #self.signals.mpgEmit.emit(self.averageMileage)
         #self.plotting()
+
+    def avgMileageReturner(self): return float(self.averageMileage)
 
     # Line fitting-ish
     #   This generates a line of the average gallons per mile.
@@ -74,25 +89,28 @@ class Mileage:
         savefig("output.png")#,bbox_inches='tight')
         show()
 
-class Window(QWidget, Ui_Fuelometer):
+class mainWindow(QMainWindow, Ui_Fuelometer):
     def __init__(self):
+        super(mainWindow, self).__init__()
         self.setupUi(self)
-        self.pushButton_2.pressed.connect(lambda: self.plotButton())
-        self.show()
+        #MileageWorker().__init__()
+        self.worker = MileageWorker()
+        #self.worker.signals.mpgEmit.connect( self.mpgLabel )
+        self.mpgLabel()
+        #self.plotButton.clicked.connect( self.plot() )
+        #self.show()
 
-    def plotButton(self):
-        Mileage().__init__()
+    def plot(self):
+        self.worker.plotting()
+
+    def mpgLabel(self):#, avgMileage):
+        print 'here'
+        mpg = self.worker.avgMileageReturner()
+        self.label_AM_Value.setText( "%.2f" % mpg ) #avgMileage ) #Fuelometer.centralwidget.
 
 
 
-
-#App().__init__()
-
-#if __name__ == '__main__':
-#    app = QApplication(sys.argv)
-#    ex = Example()
-#    sys.exit(app.exec_())
-
+'''
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -101,5 +119,13 @@ if __name__ == "__main__":
     ui.setupUi(Fuelometer)
     Fuelometer.show()
     sys.exit(app.exec_())
+'''
+if __name__ == '__main__':
+    app = QApplication([])
+    Fuelometer = mainWindow()
+    ui = Ui_Fuelometer()
+    ui.setupUi(Fuelometer)
+    Fuelometer.show()
+    app.exec_()
 
 # FIXME This script runs twice! WTF right? Why?
