@@ -15,15 +15,30 @@ class App:
             conn = lite.connect('mileage.db')
             conn.row_factory = lite.Row
             cur   = conn.cursor()
-            query = """SELECT * FROM audi"""
-            cur.execute(query)
         except:
             print "Error connecting to database"
 
+        return cur
+
+    def db_fetchrows(self):
+        try:
+            query = """SELECT * FROM audi"""
+            self.cur.execute(query)
+        except:
+            print "Error fetching database rows"
+
         # Creating a data dictionary
         data = dict()
-        for row in cur: data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'], 'price': row['price'] }})
+        for row in self.cur: data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'], 'price': row['price'] }})
         return data
+
+    def db_insertrows(self):
+        try:
+            query = """ """
+            self.cur.execute(query, )
+
+        except:
+            print "Error inserting into database"
 
     def avgMileage(self):
         global gallonsUsed, milesDriven
@@ -35,7 +50,8 @@ class App:
         return avg_mileage, mean(avg_mileage)
 
     def __init__(self):
-        self.data = self.db_connection()
+        self.cur = self.db_connection()
+        self.data = self.db_fetchrows()
         self.dates = [ self.data[key]['date'] for key in self.data ]
         self.averageMilagePerTank, self.averageMileage = self.avgMileage()
         self.x = linspace(0, 1.2*max(self.milesDriven))
@@ -72,4 +88,4 @@ class App:
 
 App().__init__()
 
-# FIXME This script runs twice! WTF right? Why? 
+# FIXME This script runs twice! WTF right? Why?
