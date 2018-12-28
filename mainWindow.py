@@ -58,11 +58,11 @@ class Ui_Fuelometer(object):
         self.label_price.setObjectName("label_price")
         self.gridLayout.addWidget(self.label_price, 0, 3, 1, 1)
         self.label_AM = QtWidgets.QLabel(self.centralwidget)
-        self.label_AM.setTextInteractionFlags(QtCore.Qt.TextSelectableByKeyboard|QtCore.Qt.TextSelectableByMouse)
         self.label_AM.setObjectName("label_AM")
         self.gridLayout.addWidget(self.label_AM, 2, 0, 1, 1)
         self.label_AM_Value = QtWidgets.QLabel(self.centralwidget)
         self.label_AM_Value.setObjectName("label_AM_Value")
+        self.label_AM_Value.setTextInteractionFlags(QtCore.Qt.TextSelectableByKeyboard|QtCore.Qt.TextSelectableByMouse)
         self.gridLayout.addWidget(self.label_AM_Value, 2, 1, 1, 1)
         Fuelometer.setCentralWidget(self.centralwidget)
 
@@ -90,4 +90,3 @@ if __name__ == "__main__":
     ui.setupUi(Fuelometer)
     Fuelometer.show()
     sys.exit(app.exec_())
-

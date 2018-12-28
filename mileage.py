@@ -7,8 +7,6 @@
 import sqlite3 as lite
 from matplotlib.pyplot import *
 from numpy import linspace, mean
-#from PyQt5 import QtCore, QtGui, QtWidgets
-#from PyQt5.QtWidgets import QWidget
 
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -16,11 +14,11 @@ from PyQt5.QtCore import *
 
 from mainWindow import Ui_Fuelometer
 
-class WorkerSignals(QObject):
-    mpgEmit = pyqtSignal(float)
+#class Communicate(QObject):
+#    mpgEmit = pyqtSignal(float)
 
 class MileageWorker(QRunnable):
-    #signals = WorkerSignals()
+#    signals = Communicate()
 
     def db_connection(self):
         # Connecting to the SQLite db
@@ -54,7 +52,6 @@ class MileageWorker(QRunnable):
         self.dates = [ self.data[key]['date'] for key in self.data ]
         self.averageMilagePerTank, self.averageMileage = self.avgMileage()
         self.x = linspace(0, 1.2*max(self.milesDriven))
-        #print self.averageMileage
         #self.signals.mpgEmit.emit(self.averageMileage)
         #self.plotting()
 
@@ -72,7 +69,7 @@ class MileageWorker(QRunnable):
         rc('xtick', labelsize='small')
         rc('ytick', labelsize='small')
 
-        plot(self.x, self.linear(), linestyle=':', color='Grey', label='GPM') # self.x, self.averageMileage
+        plot(self.x, self.linear(), linestyle=':', color='Grey', label='GPM')
 
         for x,y,z in zip( self.milesDriven, self.gallonsUsed[0:len(self.milesDriven)], self.dates[0:len(self.milesDriven)] ):
             # NB: This plots gallons per mile!
@@ -95,37 +92,21 @@ class mainWindow(QMainWindow, Ui_Fuelometer):
         self.setupUi(self)
         #MileageWorker().__init__()
         self.worker = MileageWorker()
-        #self.worker.signals.mpgEmit.connect( self.mpgLabel )
-        self.mpgLabel()
-        #self.plotButton.clicked.connect( self.plot() )
-        #self.show()
+        self.mpgLabel( self.worker.avgMileageReturner() )
+        self.plotButton.clicked.connect( self.plot )
 
     def plot(self):
+        #self.plotButton.setText( ':4.2f' )
         self.worker.plotting()
 
-    def mpgLabel(self):#, avgMileage):
-        print 'here'
-        mpg = self.worker.avgMileageReturner()
-        self.label_AM_Value.setText( "%.2f" % mpg ) #avgMileage ) #Fuelometer.centralwidget.
+    def mpgLabel(self, mpg):
+        self.label_AM_Value.setText( '{:4.2f}'.format( mpg ) )
 
 
-
-'''
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Fuelometer = QtWidgets.QMainWindow()
-    ui = Ui_Fuelometer()
-    ui.setupUi(Fuelometer)
-    Fuelometer.show()
-    sys.exit(app.exec_())
-'''
 if __name__ == '__main__':
     app = QApplication([])
     Fuelometer = mainWindow()
     ui = Ui_Fuelometer()
-    ui.setupUi(Fuelometer)
+    #ui.setupUi(Fuelometer) # This line is the root of all evil
     Fuelometer.show()
     app.exec_()
-
-# FIXME This script runs twice! WTF right? Why?
