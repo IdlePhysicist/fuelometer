@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import datetime
 
 class Ui_Fuelometer(object):
     def setupUi(self, Fuelometer):
@@ -35,7 +36,7 @@ class Ui_Fuelometer(object):
         self.plotButton.setObjectName("plotButton")
         self.gridLayout.addWidget(self.plotButton, 2, 2, 1, 1)
         self.dateEdit = QtWidgets.QDateEdit(self.centralwidget)
-        self.dateEdit.setDate(QtCore.QDate(2018, 12, 21))
+        self.dateEdit.setDate(QtCore.QDate(datetime.date.today()))
         self.dateEdit.setObjectName("dateEdit")
         self.gridLayout.addWidget(self.dateEdit, 1, 0, 1, 1)
         self.priceEdit = QtWidgets.QLineEdit(self.centralwidget)
