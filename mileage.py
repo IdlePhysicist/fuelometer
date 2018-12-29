@@ -96,7 +96,6 @@ class mainWindow(QMainWindow, Ui_Fuelometer):
         self.plotButton.clicked.connect( self.plot )
 
     def plot(self):
-        #self.plotButton.setText( ':4.2f' )
         self.worker.plotting()
 
     def mpgLabel(self, mpg):
