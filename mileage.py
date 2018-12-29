@@ -34,18 +34,23 @@ class App:
 
     def db_insertrows(self):
         try:
-            query = """ """
-            self.cur.execute(query, )
-
+            query = """INSERT INTO audi (date, mileage, fuel, price) VALUES (%s)"""
+            self.cur.execute(query, (date, mileage, fuel, price)) # TODO
         except:
             print "Error inserting into database"
 
     def avgMileage(self):
         global gallonsUsed, milesDriven
-        self.milesDriven, avg_mileage, self.gallonsUsed = [], [], []
-        for key in self.data: self.milesDriven.append( self.data[key]['mileage'] ), self.gallonsUsed.append( self.data[key]['fuel'] )
-        for j in xrange(len(self.milesDriven)):
-            avg_mileage.append(self.milesDriven[j]/self.gallonsUsed[j])
+        self.milesDriven, avg_mileage, self.gallonsUsed, oddometerReading = [], [], [], []
+        #for key in self.data: self.milesDriven.append( self.data[key]['mileage'] ), self.gallonsUsed.append( self.data[key]['fuel'] )
+        #for j in xrange(len(self.milesDriven)):
+        #    avg_mileage.append(self.milesDriven[j]/self.gallonsUsed[j])
+        for key in self.data: oddometerReading.append( self.data[key]['mileage']), self.gallonsUsed.append(self.data[key]['fuel'])
+        if len(oddometerReading) is len(self.gallonsUsed):
+            for i in xrange(len(oddometerReading)-1):
+                self.milesDriven.append(oddometerReading[i+1]-oddometerReading[i])
+            for j in xrange(len(self.milesDriven)):
+                avg_mileage.append(self.milesDriven[j]/self.gallonsUsed[j])
         print 'Total average fuel consumption: {0}\n'.format( mean(avg_mileage) )
         return avg_mileage, mean(avg_mileage)
 
