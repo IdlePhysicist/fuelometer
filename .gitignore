@@ -3,3 +3,4 @@ output.png
 *.pyc
 window.ui
 .DS_Store
+mileage.txt
