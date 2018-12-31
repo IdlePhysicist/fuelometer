@@ -36,8 +36,8 @@ class MileageWorker(QRunnable):
         # Fetch data from the table
         #
         try:
-            query = """SELECT * FROM audi"""
-            self.cur.execute(query)
+            query = """SELECT * FROM %s"""
+            self.cur.execute(query, ) # TODO
         except:
             print "Error fetching database rows"
 
@@ -46,12 +46,13 @@ class MileageWorker(QRunnable):
         for row in self.cur: data.update({ row['id']: { 'date': row['date'], 'mileage': row['mileage'], 'fuel': row['fuel'], 'price': row['price'] }})
         return data
 
-    def db_insertrows(self):
+    def db_insertrows(self, query_arg):
         # Insert data into the table
         #
         try:
             query = """INSERT INTO audi (date, mileage, fuel, price) VALUES (%s)"""
-            self.cur.execute(query, (date, mileage, fuel, price)) # TODO
+            self.cur.execute(query, query_arg) # TODO (date, mileage, fuel, price)
+            # TODO ? self.commit
         except:
             print "Error inserting into database"
 
@@ -73,7 +74,7 @@ class MileageWorker(QRunnable):
     def __init__(self):
         super(MileageWorker, self).__init__()
         self.cur = self.db_connection()
-        self.data = self.db_fetchrows()
+        self.data = self.db_fetchrows() # TODO
         self.dates = [ self.data[key]['date'] for key in self.data ]
         self.averageMilagePerTank, self.averageMileage = self.avgMileage()
         self.x = linspace(0, 1.2*max(self.milesDriven))
@@ -103,7 +104,7 @@ class MileageWorker(QRunnable):
 
         title('Miles Per Gallon: {:4.2f}'.format(self.averageMileage))
         xlim(0.9*min(self.milesDriven),1.1*max(self.milesDriven))
-        ylim(0,round(1.15*max(self.gallonsUsed))) # It's a 15.8 gallon tank so a fill up will not be anymore than 15.
+        ylim(round(0.8*min(self.gallonsUsed)),round(1.15*max(self.gallonsUsed))) # It's a 15.8 gallon tank so a fill up will not be anymore than 15.
         xlabel("Distance Driven (Miles)")
         ylabel("Fuel Consumed (US Gallons)")
         #xscale('log')
@@ -115,17 +116,13 @@ class mainWindow(QMainWindow, Ui_Fuelometer):
     def __init__(self):
         super(mainWindow, self).__init__()
         self.setupUi(self)
-        self.config = self.loadConfig
-        #self.setWindowTitle( self.config['TableName']) #FIXME
+        self.config = load(open('config.yml'))
+        self.setWindowTitle( " - ".join(['Fuelometer', self.config['TableName'] ]))
         #MileageWorker().__init__()
         self.worker = MileageWorker()
         self.mpgLabel( self.worker.avgMileageReturner() )
         self.plotButton.clicked.connect( self.plot )
-
-    def loadConfig(self):
-        with open('config.yml', 'r') as c:
-            self.fig = load(c)
-        c.close()
+        self.insertButton.clicked.connect( self.insertIntoDB )
 
     def plot(self):
         if len(self.worker.gallonsUsed) < 3:
@@ -133,9 +130,15 @@ class mainWindow(QMainWindow, Ui_Fuelometer):
         else:
             self.worker.plotting()
 
-    def mpgLabel(self, mpg):
-        self.label_AM_Value.setText( '{:4.2f}'.format( mpg ) )
+    def mpgLabel(self, mpg): self.label_AM_Value.setText( '{:4.2f} MPG'.format( mpg ) )
 
+    def insertIntoDB(self):
+        query_arg = (self.dateEdit, self.mileageEdit, self.fuelEdit, self.priceEdit)
+        print query_arg
+        #worker.db_insertrows( )
+        self.mileageEdit.clear
+        self.fuelEdit.clear
+        self.priceEdit.clear
 
 if __name__ == '__main__':
     app = QApplication([])

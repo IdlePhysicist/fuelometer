@@ -1,6 +1,6 @@
 output.png
 *.swp
 *.pyc
-window.ui
+*.ui
 .DS_Store
-mileage.txt
+*.txt
