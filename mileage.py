@@ -14,9 +14,15 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
 from mainWindow import Ui_Fuelometer
+from viewDBWindow import Ui_viewDB
 
 #class Communicate(QObject):
 #    mpgEmit = pyqtSignal(float)
+
+class dbViewWindow(QDialog, Ui_viewDB):
+    def __init__(self):
+        super(dbViewWindow, self).__init__()
+        self.setupUi(self)
 
 class MileageWorker(QRunnable):
     #signals = Communicate()
@@ -36,8 +42,8 @@ class MileageWorker(QRunnable):
         # Fetch data from the table
         #
         try:
-            query = """SELECT * FROM %s"""
-            self.cur.execute(query, ) # TODO
+            query = "SELECT * FROM {0}".format(config['TableName'].lower())
+            self.cur.execute(query)
         except:
             print "Error fetching database rows"
 
@@ -116,13 +122,15 @@ class mainWindow(QMainWindow, Ui_Fuelometer):
     def __init__(self):
         super(mainWindow, self).__init__()
         self.setupUi(self)
-        self.config = load(open('config.yml'))
-        self.setWindowTitle( " - ".join(['Fuelometer', self.config['TableName'] ]))
+        global config
+        config = load(open('config.yml'))
+        self.setWindowTitle( " - ".join(['Fuelometer', config['TableName'] ]))
         #MileageWorker().__init__()
         self.worker = MileageWorker()
         self.mpgLabel( self.worker.avgMileageReturner() )
         self.plotButton.clicked.connect( self.plot )
         self.insertButton.clicked.connect( self.insertIntoDB )
+        self.vDBButton.clicked.connect( self.callViewDB )
 
     def plot(self):
         if len(self.worker.gallonsUsed) < 3:
@@ -139,6 +147,12 @@ class mainWindow(QMainWindow, Ui_Fuelometer):
         self.mileageEdit.clear
         self.fuelEdit.clear
         self.priceEdit.clear
+
+    def callViewDB(self):
+        self.dbWindow = dbViewWindow()
+        self.dbWindow.show()
+
+
 
 if __name__ == '__main__':
     app = QApplication([])
