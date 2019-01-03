@@ -12,27 +12,37 @@ from yaml import load
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5.QtSql import *
 
 from mainWindow import Ui_Fuelometer
-from viewDBWindow import Ui_viewDB
+from viewDBWindow import Ui_databaseViewer
 
-#class Communicate(QObject):
-#    mpgEmit = pyqtSignal(float)
-
-class dbViewWindow(QDialog, Ui_viewDB):
+class dbViewWindow(QMainWindow, Ui_databaseViewer):
     def __init__(self):
         super(dbViewWindow, self).__init__()
         self.setupUi(self)
 
+    def loadData(self):
+        # where c is the cursor
+        self.c.execute('''SELECT * FROM {0} '''.format(config['TableName'].lower()))
+        rows = self.c.fetchall()
+
+        for row in rows:
+            inx = rows.index(row)
+            self.tableWidget_2.insertRow(inx)
+            # add more if there is more columns in the database.
+            self.tableWidget_2.setItem(inx, 0, QTableWidgetItem(row[1]))
+            self.tableWidget_2.setItem(inx, 1, QTableWidgetItem(row[2]))
+            self.tableWidget_2.setItem(inx, 2, QTableWidgetItem(row[3]))
+
 class MileageWorker(QRunnable):
-    #signals = Communicate()
     def db_connection(self):
         # Connecting to the SQLite db
         #
         try:
-            conn = lite.connect('mileage.db')
-            conn.row_factory = lite.Row
-            cur   = conn.cursor()
+            self.conn = lite.connect('mileage.db')
+            self.conn.row_factory = lite.Row
+            cur   = self.conn.cursor()
         except:
             print "Error connecting to database"
 
@@ -56,13 +66,12 @@ class MileageWorker(QRunnable):
         # Insert data into the table
         #
         try:
-            query = """INSERT INTO audi (date, mileage, fuel, price) VALUES (%s)"""
-            self.cur.execute(query, query_arg) # TODO (date, mileage, fuel, price)
-            # TODO ? self.commit
+            query = 'INSERT INTO {0} (date, mileage, fuel, price) VALUES ({1})'.format(config['TableName'].lower(), query_arg)
+            self.cur.execute(query)
+            self.conn.commit()
         except:
             print "Error inserting into database"
 
-    #@pyqtSlot()
     def avgMileage(self):
         global gallonsUsed, milesDriven
         self.milesDriven, avg_mileage, self.gallonsUsed, oddometerReading = [], [], [], []
@@ -84,7 +93,6 @@ class MileageWorker(QRunnable):
         self.dates = [ self.data[key]['date'] for key in self.data ]
         self.averageMilagePerTank, self.averageMileage = self.avgMileage()
         self.x = linspace(0, 1.2*max(self.milesDriven))
-        #self.signals.mpgEmit.emit(self.averageMileage)
 
     def avgMileageReturner(self): return float(self.averageMileage)
 
@@ -125,7 +133,6 @@ class mainWindow(QMainWindow, Ui_Fuelometer):
         global config
         config = load(open('config.yml'))
         self.setWindowTitle( " - ".join(['Fuelometer', config['TableName'] ]))
-        #MileageWorker().__init__()
         self.worker = MileageWorker()
         self.mpgLabel( self.worker.avgMileageReturner() )
         self.plotButton.clicked.connect( self.plot )
@@ -141,18 +148,21 @@ class mainWindow(QMainWindow, Ui_Fuelometer):
     def mpgLabel(self, mpg): self.label_AM_Value.setText( '{:4.2f} MPG'.format( mpg ) )
 
     def insertIntoDB(self):
-        query_arg = (self.dateEdit, self.mileageEdit, self.fuelEdit, self.priceEdit)
-        print query_arg
-        #worker.db_insertrows( )
-        self.mileageEdit.clear
-        self.fuelEdit.clear
-        self.priceEdit.clear
+        query_arg = ",".join([
+            str( self.dateEdit.date().toPyDate() ),
+            str( self.mileageEdit.text()         ),
+            str( self.fuelEdit.text()            ),
+            str( self.priceEdit.text()           )
+            ])
+        #print query_arg
+        self.worker.db_insertrows( query_arg )
+        self.mileageEdit.clear()
+        self.fuelEdit.clear()
+        self.priceEdit.clear()
 
     def callViewDB(self):
         self.dbWindow = dbViewWindow()
         self.dbWindow.show()
-
-
 
 if __name__ == '__main__':
     app = QApplication([])

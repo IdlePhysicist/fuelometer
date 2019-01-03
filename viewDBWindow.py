@@ -8,45 +8,49 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_viewDB(object):
-    def setupUi(self, viewDB):
-        viewDB.setObjectName("viewDB")
-        viewDB.resize(576, 278)
-        self.gridLayout = QtWidgets.QGridLayout(viewDB)
+class Ui_databaseViewer(object):
+    def setupUi(self, databaseViewer):
+        databaseViewer.setObjectName("databaseViewer")
+        databaseViewer.resize(616, 346)
+        self.centralwidget = QtWidgets.QWidget(databaseViewer)
+        self.centralwidget.setObjectName("centralwidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.scrollArea = QtWidgets.QScrollArea(viewDB)
+        self.showAllButton = QtWidgets.QRadioButton(self.centralwidget)
+        self.showAllButton.setObjectName("showAllButton")
+        self.gridLayout.addWidget(self.showAllButton, 1, 0, 1, 1)
+        self.deleteButton = QtWidgets.QPushButton(self.centralwidget)
+        self.deleteButton.setObjectName("deleteButton")
+        self.gridLayout.addWidget(self.deleteButton, 1, 1, 1, 1)
+        self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 550, 218))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 590, 286))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.tableView = QtWidgets.QTableView(self.scrollAreaWidgetContents)
-        self.tableView.setGeometry(QtCore.QRect(0, 0, 551, 221))
+        self.tableView.setGeometry(QtCore.QRect(0, 0, 591, 291))
         self.tableView.setObjectName("tableView")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout.addWidget(self.scrollArea, 0, 0, 1, 2)
-        self.checkBox = QtWidgets.QCheckBox(viewDB)
-        self.checkBox.setObjectName("checkBox")
-        self.gridLayout.addWidget(self.checkBox, 1, 0, 1, 1)
-        self.deleteEntryButton = QtWidgets.QPushButton(viewDB)
-        self.deleteEntryButton.setObjectName("deleteEntryButton")
-        self.gridLayout.addWidget(self.deleteEntryButton, 1, 1, 1, 1)
+        databaseViewer.setCentralWidget(self.centralwidget)
 
-        self.retranslateUi(viewDB)
-        QtCore.QMetaObject.connectSlotsByName(viewDB)
+        self.retranslateUi(databaseViewer)
+        QtCore.QMetaObject.connectSlotsByName(databaseViewer)
 
-    def retranslateUi(self, viewDB):
+    def retranslateUi(self, databaseViewer):
         _translate = QtCore.QCoreApplication.translate
-        viewDB.setWindowTitle(_translate("viewDB", "View Database"))
-        self.checkBox.setText(_translate("viewDB", "Show All"))
-        self.deleteEntryButton.setText(_translate("viewDB", "Delete Entry"))
+        databaseViewer.setWindowTitle(_translate("databaseViewer", "Database "))
+        self.showAllButton.setText(_translate("databaseViewer", "Show All"))
+        self.deleteButton.setText(_translate("databaseViewer", "Delete Entry"))
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    viewDB = QtWidgets.QDialog()
-    ui = Ui_viewDB()
-    ui.setupUi(viewDB)
-    viewDB.show()
+    databaseViewer = QtWidgets.QMainWindow()
+    ui = Ui_databaseViewer()
+    ui.setupUi(databaseViewer)
+    databaseViewer.show()
     sys.exit(app.exec_())
+
